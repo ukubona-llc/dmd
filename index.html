@@ -44,22 +44,30 @@
     font-weight:400;
     line-height:1.6;
   }
+  :root{ --content-width: 1040px; --edge: clamp(1.5rem, 6vw, 4rem); }
+  .shell{
+    max-width:var(--content-width);
+    margin:0 auto;
+    padding-left:var(--edge);
+    padding-right:var(--edge);
+    position:relative;
+  }
   .mathy{ font-family:'DM Mono', monospace; font-size:0.94em; color:var(--violet); }
   ::selection{ background:var(--amber-soft); }
 
   /* ---------- header ---------- */
   header{
-    position:relative;
-    padding:5.5rem 6vw 4rem;
+    padding:5.5rem 0 4rem;
     border-bottom:1px solid var(--line);
     overflow:hidden;
     background:
       radial-gradient(circle at 85% 20%, rgba(181,119,44,0.10), transparent 55%),
       radial-gradient(circle at 10% 80%, rgba(93,74,138,0.10), transparent 50%);
   }
+  .header-shell{ padding-top:0; padding-bottom:0; }
   .logo-mark{
     position:absolute;
-    top:3rem; right:6vw;
+    top:0; right:var(--edge);
     width:64px; height:64px;
   }
   .logo-mark svg{ animation: spin 90s linear infinite; }
@@ -110,7 +118,9 @@
     background:rgba(251,248,242,0.94);
     backdrop-filter:blur(6px);
     border-bottom:1px solid var(--line);
-    padding:0.9rem 6vw;
+    padding:0.9rem 0;
+  }
+  .controls-shell{
     display:flex;
     flex-wrap:wrap;
     gap:0.5rem 1.6rem;
@@ -150,7 +160,7 @@
   }
 
   /* ---------- ledger ---------- */
-  main{ padding:3rem 6vw 2rem; max-width:980px; margin:0 auto; }
+  main{ padding-top:3rem; padding-bottom:2rem; max-width:var(--content-width); margin:0 auto; }
   .sl{
     border:none; border-top:1px dashed var(--line);
     margin:2.6rem 0;
@@ -293,42 +303,46 @@
 <body>
 
 <header>
-  <div class="logo-mark">
-    <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="32" cy="32" r="30" fill="none" stroke="var(--amber-soft)" stroke-width="1.5"/>
-      <path d="M32 6 A26 26 0 0 1 58 32" fill="none" stroke="var(--amber)" stroke-width="2.5" stroke-linecap="round"/>
-      <path d="M32 58 A26 26 0 0 1 6 32" fill="none" stroke="var(--violet)" stroke-width="2.5" stroke-linecap="round"/>
-      <text x="32" y="39" text-anchor="middle" font-family="DM Serif Display, serif" font-size="22" fill="var(--ink)">U</text>
-    </svg>
+  <div class="shell header-shell">
+    <div class="logo-mark">
+      <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="32" cy="32" r="30" fill="none" stroke="var(--amber-soft)" stroke-width="1.5"/>
+        <path d="M32 6 A26 26 0 0 1 58 32" fill="none" stroke="var(--amber)" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M32 58 A26 26 0 0 1 6 32" fill="none" stroke="var(--violet)" stroke-width="2.5" stroke-linecap="round"/>
+        <text x="32" y="39" text-anchor="middle" font-family="DM Serif Display, serif" font-size="22" fill="var(--ink)">U</text>
+      </svg>
+    </div>
+    <p class="eyebrow">Ukubona LLC · Λᵢ Gradient Log · R&amp;D Sieve</p>
+    <h1>Through a glass, <em>darkly</em>: an evolution ledger</h1>
+    <p class="subhead">What survived the roundtable — xAI, Gemini, OpenAI, Claude, and Vogelstein — as the pentad met Dynamic Mode Decomposition. Each Λᵢ is an irreversible step: KEPT, DESTROYED, or INSIGHT.</p>
+    <div class="formula-strip">θᵗ → L₀+Σwᵢ·Lᵢ → f(σ²,λ,ε) → γ|ε_FGT|² → L(θᵗ⁺¹)</div>
+    <p class="root-chain">okubonabona → kubona → ivyabona → ukubona → sawubona &nbsp;·&nbsp; session anchor: 1 Corinthians 13, KJV</p>
   </div>
-  <p class="eyebrow">Ukubona LLC · Λᵢ Gradient Log · R&amp;D Sieve</p>
-  <h1>Through a glass, <em>darkly</em>: an evolution ledger</h1>
-  <p class="subhead">What survived the roundtable — xAI, Gemini, OpenAI, Claude, and Vogelstein — as the pentad met Dynamic Mode Decomposition. Each Λᵢ is an irreversible step: KEPT, DESTROYED, or INSIGHT.</p>
-  <div class="formula-strip">θᵗ → L₀+Σwᵢ·Lᵢ → f(σ²,λ,ε) → γ|ε_FGT|² → L(θᵗ⁺¹)</div>
-  <p class="root-chain">okubonabona → kubona → ivyabona → ukubona → sawubona &nbsp;·&nbsp; session anchor: 1 Corinthians 13, KJV</p>
 </header>
 
 <div class="controls">
-  <div class="ctrl-group">
-    <span class="ctrl-label">Voice</span>
-    <button class="chip active" data-filter-type="voice" data-filter="all">All</button>
-    <button class="chip" data-filter-type="voice" data-filter="xai">xAI</button>
-    <button class="chip" data-filter-type="voice" data-filter="gemini">Gemini</button>
-    <button class="chip" data-filter-type="voice" data-filter="openai">OpenAI</button>
-    <button class="chip" data-filter-type="voice" data-filter="claude">Claude</button>
-    <button class="chip" data-filter-type="voice" data-filter="rose">Vogelstein</button>
+  <div class="shell controls-shell">
+    <div class="ctrl-group">
+      <span class="ctrl-label">Voice</span>
+      <button class="chip active" data-filter-type="voice" data-filter="all">All</button>
+      <button class="chip" data-filter-type="voice" data-filter="xai">xAI</button>
+      <button class="chip" data-filter-type="voice" data-filter="gemini">Gemini</button>
+      <button class="chip" data-filter-type="voice" data-filter="openai">OpenAI</button>
+      <button class="chip" data-filter-type="voice" data-filter="claude">Claude</button>
+      <button class="chip" data-filter-type="voice" data-filter="rose">Vogelstein</button>
+    </div>
+    <div class="ctrl-group">
+      <span class="ctrl-label">Verdict</span>
+      <button class="chip active" data-filter-type="verdict" data-filter="all">All</button>
+      <button class="chip" data-filter-type="verdict" data-filter="kept">Kept</button>
+      <button class="chip" data-filter-type="verdict" data-filter="destroyed">Destroyed</button>
+      <button class="chip" data-filter-type="verdict" data-filter="insight">Insight</button>
+    </div>
+    <span class="count-pill" id="countPill">20 entries</span>
   </div>
-  <div class="ctrl-group">
-    <span class="ctrl-label">Verdict</span>
-    <button class="chip active" data-filter-type="verdict" data-filter="all">All</button>
-    <button class="chip" data-filter-type="verdict" data-filter="kept">Kept</button>
-    <button class="chip" data-filter-type="verdict" data-filter="destroyed">Destroyed</button>
-    <button class="chip" data-filter-type="verdict" data-filter="insight">Insight</button>
-  </div>
-  <span class="count-pill" id="countPill">20 entries</span>
 </div>
 
-<main>
+<main class="shell">
 
   <section id="act1">
     <h2 class="section-title">I. The theological operator (Λ1–Λ4)</h2>
