@@ -1,1 +1,692 @@
-.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ukubona LLC — R&D Sieve Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+    svg: { fontCache: 'global' }
+  };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
+<style>
+  :root{
+    --ink:#171310;
+    --paper:#fbf8f2;
+    --paper-dim:#f2ede2;
+    --line:#d9cfba;
+    --amber:#b5772c;
+    --amber-soft:#e8d3ad;
+    --violet:#5d4a8a;
+    --violet-soft:#e3dcf2;
+    --gold:#a3831c;
+    --teal:#1f7a6c;
+    --coral:#b64a3a;
+    --rose:#9c3e5c;
+    --kept:#2f6f4f;
+    --kept-bg:#e3efe4;
+    --destroyed:#9c3e3e;
+    --destroyed-bg:#f3e2e0;
+    --insight:#7a5aa8;
+    --insight-bg:#eae3f5;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'DM Sans', sans-serif;
+    font-weight:400;
+    line-height:1.6;
+  }
+  .mathy{ font-family:'DM Mono', monospace; font-size:0.94em; color:var(--violet); }
+  ::selection{ background:var(--amber-soft); }
+
+  /* ---------- header ---------- */
+  header{
+    position:relative;
+    padding:5.5rem 6vw 4rem;
+    border-bottom:1px solid var(--line);
+    overflow:hidden;
+    background:
+      radial-gradient(circle at 85% 20%, rgba(181,119,44,0.10), transparent 55%),
+      radial-gradient(circle at 10% 80%, rgba(93,74,138,0.10), transparent 50%);
+  }
+  .logo-mark{
+    position:absolute;
+    top:3rem; right:6vw;
+    width:64px; height:64px;
+  }
+  .logo-mark svg{ animation: spin 90s linear infinite; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  .eyebrow{
+    font-family:'DM Mono', monospace;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    font-size:0.72rem;
+    color:var(--amber);
+    margin:0 0 1.1rem;
+  }
+  h1{
+    font-family:'DM Serif Display', serif;
+    font-weight:400;
+    font-size:clamp(2.1rem, 4.4vw, 3.4rem);
+    margin:0 0 0.6rem;
+    max-width:16ch;
+    line-height:1.08;
+  }
+  h1 em{ font-style:italic; color:var(--amber); }
+  .subhead{
+    max-width:52ch;
+    color:#4a4238;
+    font-size:1.02rem;
+    margin:0.4rem 0 2.2rem;
+  }
+  .formula-strip{
+    font-family:'DM Mono', monospace;
+    font-size:0.85rem;
+    color:var(--violet);
+    background:var(--violet-soft);
+    display:inline-block;
+    padding:0.55rem 1rem;
+    border-radius:3px;
+    border:1px solid #cfc2e8;
+  }
+  .root-chain{
+    margin-top:1.4rem;
+    font-family:'DM Mono', monospace;
+    font-size:0.78rem;
+    color:#8a7f6c;
+  }
+
+  /* ---------- controls ---------- */
+  .controls{
+    position:sticky; top:0; z-index:20;
+    background:rgba(251,248,242,0.94);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+    padding:0.9rem 6vw;
+    display:flex;
+    flex-wrap:wrap;
+    gap:0.5rem 1.6rem;
+    align-items:center;
+  }
+  .ctrl-group{ display:flex; gap:0.4rem; flex-wrap:wrap; align-items:center; }
+  .ctrl-label{
+    font-family:'DM Mono', monospace;
+    font-size:0.68rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:#8a7f6c;
+    margin-right:0.3rem;
+  }
+  .chip{
+    font-family:'DM Sans', sans-serif;
+    font-size:0.78rem;
+    padding:0.32rem 0.72rem;
+    border-radius:999px;
+    border:1px solid var(--line);
+    background:var(--paper);
+    color:var(--ink);
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  .chip:hover{ border-color:var(--amber); }
+  .chip.active{
+    background:var(--ink);
+    color:var(--paper);
+    border-color:var(--ink);
+  }
+  .count-pill{
+    margin-left:auto;
+    font-family:'DM Mono', monospace;
+    font-size:0.75rem;
+    color:#8a7f6c;
+  }
+
+  /* ---------- ledger ---------- */
+  main{ padding:3rem 6vw 2rem; max-width:980px; margin:0 auto; }
+  .sl{
+    border:none; border-top:1px dashed var(--line);
+    margin:2.6rem 0;
+  }
+  .section-title{
+    font-family:'DM Serif Display', serif;
+    font-size:1.5rem;
+    margin:0 0 0.3rem;
+  }
+  .section-note{
+    color:#6b6152; font-size:0.9rem; margin:0 0 1.8rem; max-width:62ch;
+  }
+
+  .entry{
+    display:grid;
+    grid-template-columns:64px 1fr;
+    gap:1.1rem;
+    padding:1.5rem 0;
+    border-top:1px solid var(--line);
+    transition:opacity .2s ease;
+  }
+  .entry:first-of-type{ border-top:1px solid var(--line); }
+  .entry.hidden{ display:none; }
+  .lambda{
+    font-family:'DM Mono', monospace;
+    font-size:0.85rem;
+    color:var(--amber);
+    padding-top:0.15rem;
+  }
+  .entry-head{
+    display:flex; flex-wrap:wrap; align-items:center; gap:0.6rem; margin-bottom:0.5rem;
+  }
+  .voice-tag{
+    font-family:'DM Mono', monospace;
+    font-size:0.68rem;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    padding:0.16rem 0.5rem;
+    border-radius:3px;
+    color:#fff;
+  }
+  .voice-xai{ background:var(--gold); }
+  .voice-gemini{ background:var(--teal); }
+  .voice-openai{ background:var(--coral); }
+  .voice-claude{ background:var(--violet); }
+  .voice-rose{ background:var(--rose); }
+
+  .verdict{
+    font-family:'DM Mono', monospace;
+    font-size:0.68rem;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    padding:0.16rem 0.55rem;
+    border-radius:3px;
+  }
+  .verdict-kept{ background:var(--kept-bg); color:var(--kept); }
+  .verdict-destroyed{ background:var(--destroyed-bg); color:var(--destroyed); text-decoration:line-through; text-decoration-thickness:1px; }
+  .verdict-insight{ background:var(--insight-bg); color:var(--insight); }
+
+  .claim{
+    font-family:'DM Serif Display', serif;
+    font-size:1.14rem;
+    font-style:italic;
+    margin:0 0 0.5rem;
+    line-height:1.35;
+  }
+  .note{ font-size:0.93rem; color:#3d372e; margin:0; }
+  .note .mathy{ display:inline-block; }
+
+  /* ---------- callout / pull-quote ---------- */
+  .callout{
+    background:var(--paper-dim);
+    border-left:3px solid var(--amber);
+    padding:1.1rem 1.4rem;
+    margin:2.4rem 0;
+    font-size:0.95rem;
+  }
+  .callout strong{ color:var(--amber); }
+  .pull-quote{
+    font-family:'DM Serif Display', serif;
+    font-size:1.5rem;
+    line-height:1.35;
+    max-width:34ch;
+    margin:2.6rem auto;
+    text-align:center;
+    color:#2b251e;
+  }
+  .pull-quote span{ display:block; font-family:'DM Mono', monospace; font-size:0.75rem; color:#9a8f7a; margin-top:0.8rem; font-style:normal; }
+
+  /* ---------- master table ---------- */
+  .master-table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:0.86rem;
+    margin:1.4rem 0 2.4rem;
+  }
+  .master-table th, .master-table td{
+    text-align:left;
+    padding:0.55rem 0.7rem;
+    border-bottom:1px solid var(--line);
+    vertical-align:top;
+  }
+  .master-table th{
+    font-family:'DM Mono', monospace;
+    font-size:0.68rem;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    color:#8a7f6c;
+    font-weight:400;
+  }
+
+  /* ---------- footer ---------- */
+  .ep-note{
+    max-width:60ch;
+    margin:4rem auto 5rem;
+    padding-top:2rem;
+    border-top:1px solid var(--line);
+    text-align:center;
+    font-family:'DM Serif Display', serif;
+    font-style:italic;
+    font-size:1.05rem;
+    color:#5a5142;
+  }
+  .ep-note .cite{
+    display:block; margin-top:0.7rem;
+    font-family:'DM Mono', monospace;
+    font-style:normal;
+    font-size:0.72rem;
+    letter-spacing:0.04em;
+    color:#9a8f7a;
+  }
+
+  @media (max-width:640px){
+    .entry{ grid-template-columns:1fr; }
+    .lambda{ padding-top:0; }
+    .logo-mark{ top:1.6rem; right:5vw; width:44px; height:44px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-mark">
+    <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="32" cy="32" r="30" fill="none" stroke="var(--amber-soft)" stroke-width="1.5"/>
+      <path d="M32 6 A26 26 0 0 1 58 32" fill="none" stroke="var(--amber)" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M32 58 A26 26 0 0 1 6 32" fill="none" stroke="var(--violet)" stroke-width="2.5" stroke-linecap="round"/>
+      <text x="32" y="39" text-anchor="middle" font-family="DM Serif Display, serif" font-size="22" fill="var(--ink)">U</text>
+    </svg>
+  </div>
+  <p class="eyebrow">Ukubona LLC · Λᵢ Gradient Log · R&amp;D Sieve</p>
+  <h1>Through a glass, <em>darkly</em>: an evolution ledger</h1>
+  <p class="subhead">What survived the roundtable — xAI, Gemini, OpenAI, Claude, and Vogelstein — as the pentad met Dynamic Mode Decomposition. Each Λᵢ is an irreversible step: KEPT, DESTROYED, or INSIGHT.</p>
+  <div class="formula-strip">θᵗ → L₀+Σwᵢ·Lᵢ → f(σ²,λ,ε) → γ|ε_FGT|² → L(θᵗ⁺¹)</div>
+  <p class="root-chain">okubonabona → kubona → ivyabona → ukubona → sawubona &nbsp;·&nbsp; session anchor: 1 Corinthians 13, KJV</p>
+</header>
+
+<div class="controls">
+  <div class="ctrl-group">
+    <span class="ctrl-label">Voice</span>
+    <button class="chip active" data-filter-type="voice" data-filter="all">All</button>
+    <button class="chip" data-filter-type="voice" data-filter="xai">xAI</button>
+    <button class="chip" data-filter-type="voice" data-filter="gemini">Gemini</button>
+    <button class="chip" data-filter-type="voice" data-filter="openai">OpenAI</button>
+    <button class="chip" data-filter-type="voice" data-filter="claude">Claude</button>
+    <button class="chip" data-filter-type="voice" data-filter="rose">Vogelstein</button>
+  </div>
+  <div class="ctrl-group">
+    <span class="ctrl-label">Verdict</span>
+    <button class="chip active" data-filter-type="verdict" data-filter="all">All</button>
+    <button class="chip" data-filter-type="verdict" data-filter="kept">Kept</button>
+    <button class="chip" data-filter-type="verdict" data-filter="destroyed">Destroyed</button>
+    <button class="chip" data-filter-type="verdict" data-filter="insight">Insight</button>
+  </div>
+  <span class="count-pill" id="countPill">20 entries</span>
+</div>
+
+<main>
+
+  <section id="act1">
+    <h2 class="section-title">I. The theological operator (Λ1–Λ4)</h2>
+    <p class="section-note">Faith, Charity, Hope, Vision, Engineering proposed as a pentad over 1 Cor 13:12 — "we see through a glass, darkly." First attempts to bind it to a systems architecture.</p>
+
+    <div class="entry" data-voice="xai" data-verdict="kept">
+      <div class="lambda">Λ1</div>
+      <div>
+        <div class="entry-head">
+          <span class="voice-tag voice-xai">xAI</span>
+          <span class="verdict verdict-kept">Kept</span>
+        </div>
+        <p class="claim">Faith→Past, Charity→Present, Hope→Future, Vision→"through a glass, darkly," Engineering→SGD as the optimizer for an unseen manifold.</p>
+        <p class="note">Foundational frame for the whole session. SGD earns its place here on epistemic grounds, not performance grounds — it doesn't require the global loss landscape.</p>
+      </div>
+    </div>
+
+    <div class="entry" data-voice="gemini" data-verdict="destroyed">
+      <div class="lambda">Λ2</div>
+      <div>
+        <div class="entry-head">
+          <span class="voice-tag voice-gemini">Gemini</span>
+          <span class="verdict verdict-destroyed">Destroyed</span>
+        </div>
+        <p class="claim">The Digital Twin Pentad: Landscape / User Behavior / SGD / UI-UX / Ecosystem, mapped 1:1 onto Faith / Vision / Engineering / Charity / Hope.</p>
+        <p class="note">OpenAI's counter held: "imported rather than discovered." Nothing in 1 Cor 13 privileges UI/UX as the site of charity — the correspondence was asserted, not derived.</p>
+      </div>
+    </div>
+
+    <div class="entry" data-voice="openai" data-verdict="kept">
+      <div class="lambda">Λ3</div>
+      <div>
+        <div class="entry-head">
+          <span class="voice-tag voice-openai">OpenAI</span>
+          <span class="verdict verdict-kept">Kept — contested</span>
+        </div>
+        <p class="claim">Charity as the update operator: <span class="mathy">x_{t+1} = U(x_t)</span>. Everything else is information; only Charity changes the state.</p>
+        <p class="note">Flagged by Claude as elegant but not textually forced — Hope reads equally well as the operator, with Charity as the objective. Kept as interpretive scaffolding, not as a proof.</p>
+      </div>
+    </div>
+
+    <div class="entry" data-voice="openai" data-verdict="insight">
+      <div class="lambda">Λ4</div>
+      <div>
+        <div class="entry-head">
+          <span class="voice-tag voice-openai">OpenAI</span>
+          <span class="verdict verdict-insight">Insight</span>
+        </div>
+        <p class="claim">Ukubona ("to see") named against "now we see through a glass, darkly" — the company name as an admission of imperfect sight, not a claim to clarity.</p>
+        <p class="note">Reframes the engineering mandate: build systems that stay useful under uncertainty, not systems that eliminate it.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="sl">
+
+  <section id="act2">
+    <h2 class="section-title">II. The differentiability crisis (Λ5–Λ8)</h2>
+    <p class="section-note">Vogelstein's own catch: <em>you can't differentiate an event stream.</em> The pentad's sub-sequence — Cartesian, Jacobian, Hessian, Identity, Appraisal — collides with that fact.</p>
+
+    <div class="entry" data-voice="rose" data-verdict="kept">
+      <div class="lambda">Λ5</div>
+      <div>
+        <div class="entry-head">
+          <span class="voice-tag voice-rose">Vogelstein</span>
+          <span class="verdict verdict-kept">Kept — foundational</span>
+        </div>
+        <p class="claim">"I have an event-stream... you can't differentiate an event stream."</p>
+        <p class="note">A derivative requires <span class="mathy">f: X → Y</span>. Raw events <span class="mathy">e₁, e₂, e₃…</span> are observations, not a function. No function, no Jacobian, no Hessian — full stop, until a state space is imposed.</p>
+      </div>
+    </div>
+
+    <div class="entry" data-voice="openai" data-verdict="destroyed">
+      <div class="lambda">Λ6</div>
+      <div>
+        <div class="entry-head">
+          <span class="voice-tag voice-openai">OpenAI</span>
+          <span class="verdict verdict-destroyed">Destroyed</span>
+        </div>
+        <p class="claim">Proposed inserting "Identity" as a sixth pentad operator: Events → Identity → Function → Jacobian → Hessian → Action → Appraisal.</p>
+        <p class="note">Overruled on contact: "you are the most notorious for not honoring my pentadic constraint. its no negotiable." The pentad is five, not six — non-negotiable Ukubona constraint.</p>
+      </div>
+    </div>
+
+    <div class="entry" data-voice="openai" data-verdict="kept">
+      <div class="lambda">Λ7</div>
+      <div>
+        <div class="entry-head">
+          <span class="voice-tag voice-openai">OpenAI</span>
+          <span class="verdict verdict-kept">Kept — conditional</span>
+        </div>
+        <p class="claim">Identity relocated inside Vision as sub-machinery: Vision ⊃ {Cartesian, Jacobian, Hessian, Identity, Appraisal}.</p>
+        <p class="note">Satisfies the five-slot constraint. Flagged by Claude as a relabeling, not a derivation — the order inside Vision was still wrong (Identity sat <em>after</em> Hessian).</p>
+      </div>
+    </div>
+
+    <div class="entry" data-voice="claude" data-verdict="kept">
+      <div class="lambda">Λ8</div>
+      <div>
+        <div class="entry-head">
+          <span class="voice-tag voice-claude">Claude</span>
+          <span class="verdict verdict-kept">Kept</span>
+        </div>
+        <p class="claim">Correct sub-order: Identity → Cartesian → Jacobian → Hessian → Appraisal. Identity must precede Jacobian because it defines the state space Jacobian differentiates over.</p>
+        <p class="note">Same five sub-items, reordered so the calculus is legal at every step — not a new operator, a dependency fix.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="sl">
+
+  <div class="callout">
+    <strong>Surfacing weights, not budget share.</strong> A budget view shows % of what's present — a simplex, everything summing to 100. A weight vector <span class="mathy">wᵢ</span> in <span class="mathy">L₀ + Σwᵢ·Lᵢ</span> has no such constraint: <span class="mathy">wᵢ = 0</span> is legitimate and invisible to any budget review. Nobody audits an absence. The honest dashboard reports the full <span class="mathy">w</span> vector, including every zero, dated — a zero with a timestamp is an auditable decision; a missing line item is not a decision at all.
+  </div>
+
+  <section id="act3">
+    <h2 class="section-title">III. Seed vs. loop (Λ9–Λ10)</h2>
+    <p class="section-note">Does recursion dissolve the ordering problem? Partially.</p>
+
+    <div class="entry" data-voice="rose" data-verdict="insight">
+      <div class="lambda">Λ9</div>
+      <div>
+        <div class="entry-head">
+          <span class="voice-tag voice-rose">Vogelstein</span>
+          <span class="verdict verdict-insight">Insight — session core</span>
+        </div>
+        <p class="claim">"Surfacing weights in a composite loss function, rather than looking at % of budget to see values. w_i = 0 doesn't make it to the budget."</p>
+        <p class="note">The clearest catch of the whole roundtable: budget answers "how much of what exists," weight vector answers "what exists at all." Same shape as the Jacobian bug, one level up — the artifact that would reveal the omission is not the artifact being reviewed.</p>
+      </div>
+    </div>
+
+    <div class="entry" data-voice="claude" data-verdict="kept">
+      <div class="lambda">Λ10</div>
+      <div>
+        <div class="entry-head">
+          <span class="voice-tag voice-claude">Claude</span>
+          <span class="verdict verdict-kept">Kept — with caveat</span>
+        </div>
+        <p class="claim">Recursion resolves ordering at steady state — Identity(t) → … → Identity(t+1) makes "first" and "last" meaningless mid-loop. But every loop needs a seed Identity(0) that isn't the output of a prior Appraisal.</p>
+        <p class="note">"Chicken-egg" is legitimate for t&gt;0. At t=0 the founding act is ontology, not calculus, and it sits outside the loop — it's what makes the loop possible.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="sl">
+
+  <section id="act4">
+    <h2 class="section-title">IV. DMD as the way out (Λ11–Λ16)</h2>
+    <p class="section-note">The technical resolution: stepwise deltas on a raw event stream, formalized as Dynamic Mode Decomposition.</p>
+
+    <div class="entry" data-voice="rose" data-verdict="destroyed">
+      <div class="lambda">Λ11</div>
+      <div>
+        <div class="entry-head">
+          <span class="voice-tag voice-rose">Vogelstein</span>
+          <span class="verdict verdict-destroyed">Destroyed</span>
+        </div>
+        <p class="claim">Proposed: event stream, differenced <span class="mathy">t → t+1</span>, gives a Jacobian-like matrix directly, no function specification needed.</p>
+        <p class="note"><span class="mathy">Δeₜ = eₜ₊₁ − eₜ</span> is a velocity (<span class="mathy">de/dt</span>), not a Jacobian (<span class="mathy">∂output/∂input</span>). Time-differencing and state-differencing are different objects — category error caught and corrected in the same turn.</p>
+      </div>
+    </div>
+
+    <div class="entry" data-voice="claude" data-verdict="kept">
+      <div class="lambda">Λ12</div>
+      <div>
+        <div class="entry-head">
+          <span class="voice-tag voice-claude">Claude</span>
+          <span class="verdict verdict-kept">Kept</span>
+        </div>
+        <p class="claim">Dynamic Mode Decomposition: fit <span class="mathy">X' ≈ AX</span> from snapshot matrices, no analytic model required. Eigendecomposition of A gives the Eigenmode tab; A itself is a data-fit Jacobian.</p>
+        <p class="note">Real, established technique — redeems the Tensor→Matrix→Vector→Eigenmode→Scalar funnel as an actual object rather than an aspirational one. Cost: linearity + embedding are now the implicit specifications, not zero specification.</p>
+      </div>
+    </div>
+
+    <div class="entry" data-voice="claude" data-verdict="destroyed">
+      <div class="lambda">Λ13</div>
+      <div>
+        <div class="entry-head">
+          <span class="voice-tag voice-claude">Claude</span>
+          <span class="verdict verdict-destroyed">Destroyed</span>
+        </div>
+        <p class="claim">Global DMD Hessian, proposed as <span class="mathy">ΔJₜ₊₁ / Δinputₜ</span>.</p>
+        <p class="note">If <span class="mathy">J = A</span> everywhere (one global linear fit), <span class="mathy">∂A/∂input ≡ 0</span> identically — not small, structurally zero. Flagged as an investor-facing risk if any current dashboard claims curvature from a single global DMD fit.</p>
+      </div>
+    </div>
+
+    <div class="entry" data-voice="claude" data-verdict="kept">
+      <div class="lambda">Λ14</div>
+      <div>
+        <div class="entry-head">
+          <span class="voice-tag voice-claude">Claude</span>
+          <span class="verdict verdict-kept">Kept</span>
+        </div>
+        <p class="claim">Windowed DMD: fit <span class="mathy">Aₜ</span> per sliding window. Jacobian = <span class="mathy">Aₜ</span>. Hessian = <span class="mathy">Aₜ₊₁ − Aₜ</span> across windows — curvature of the belief, not of a closed-form function.</p>
+        <p class="note">Legal because it measures how the local linearization drifts as the window slides — exactly what a Hessian should capture, estimated empirically instead of analytically.</p>
+      </div>
+    </div>
+
+    <div class="entry" data-voice="gemini" data-verdict="kept">
+      <div class="lambda">Λ15</div>
+      <div>
+        <div class="entry-head">
+          <span class="voice-tag voice-gemini">Gemini</span>
+          <span class="verdict verdict-kept">Kept</span>
+        </div>
+        <p class="claim">Windowing trades one impossibility for a hyperparameter (window size w) and demands a rigorous operator-distance metric — Procrustes distance or eigenvalue trajectory — rather than naive element-wise subtraction of <span class="mathy">Aₜ</span> matrices.</p>
+        <p class="note">This is where Appraisal stops being a subjective label and becomes the function that defines how operator distance is measured — mathematical teeth for the fifth pentad slot.</p>
+      </div>
+    </div>
+
+    <div class="entry" data-voice="gemini" data-verdict="kept">
+      <div class="lambda">Λ16</div>
+      <div>
+        <div class="entry-head">
+          <span class="voice-tag voice-gemini">Gemini</span>
+          <span class="verdict verdict-kept">Kept</span>
+        </div>
+        <p class="claim">Streaming / Online DMD: rank-1 updates evolve <span class="mathy">Aₜ</span> as events enter and leave the window, instead of recomputing a full SVD at every step.</p>
+        <p class="note">Production feasibility fix — naive windowed DMD (one SVD per timestep) would choke a live telemetry dashboard.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="pull-quote">
+    "You don't throw away everything. You simply ask: how should my operator change because of exactly one new observation?"
+    <span>— on Streaming DMD as belief revision, not recomputation</span>
+  </div>
+
+  <hr class="sl">
+
+  <section id="act5">
+    <h2 class="section-title">V. Nonparametric ingestion, parametric moulds (Λ17–Λ19)</h2>
+    <p class="section-note">Where the pentad stops being metaphor and starts being an online state estimator.</p>
+
+    <div class="entry" data-voice="openai" data-verdict="insight">
+      <div class="lambda">Λ17</div>
+      <div>
+        <div class="entry-head">
+          <span class="voice-tag voice-openai">OpenAI</span>
+          <span class="verdict verdict-insight">Insight</span>
+        </div>
+        <p class="claim">Identity is no longer static: <span class="mathy">Identityₜ = Aₜ</span>, evolving with every observation. A process ontology, not a substance ontology.</p>
+        <p class="note">Direct consequence of Streaming DMD — the operator itself becomes the thing that persists and updates, rather than a fixed label assigned once at t=0.</p>
+      </div>
+    </div>
+
+    <div class="entry" data-voice="openai" data-verdict="kept">
+      <div class="lambda">Λ18</div>
+      <div>
+        <div class="entry-head">
+          <span class="voice-tag voice-openai">OpenAI</span>
+          <span class="verdict verdict-kept">Kept</span>
+        </div>
+        <p class="claim">Nonparametric at ingestion, parametric at interpretation: learn <span class="mathy">Aₜ</span> from raw observation first, only afterward ask which familiar mould it resembles — logistic, Hamiltonian, oscillatory, dissipative.</p>
+        <p class="note">Postpones commitment. Parameters become descriptions discovered after the fact, not assumptions imposed before the data arrives.</p>
+      </div>
+    </div>
+
+    <div class="entry" data-voice="openai" data-verdict="insight">
+      <div class="lambda">Λ19</div>
+      <div>
+        <div class="entry-head">
+          <span class="voice-tag voice-openai">OpenAI</span>
+          <span class="verdict verdict-insight">Insight</span>
+        </div>
+        <p class="claim">12TET as structural bilingualism: Paul's "through a glass, darkly," Nietzsche's perspectivism, and Streaming DMD's local-operator estimation are three instantiations of one operator — finite observers, no God's-eye access.</p>
+        <p class="note">Not claiming the traditions say the same thing; claiming they can be mapped into a common coordinate system without erasing their differences — a change of basis, not a translation.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="sl">
+
+  <section id="ledger-table">
+    <h2 class="section-title">Master ledger</h2>
+    <table class="master-table">
+      <thead>
+        <tr><th>Λ</th><th>Voice</th><th>Claim (short)</th><th>Verdict</th></tr>
+      </thead>
+      <tbody id="tableBody">
+        <tr><td>1</td><td>xAI</td><td>Pentad ↔ 1 Cor 13, SGD as epistemic-humility operator</td><td>Kept</td></tr>
+        <tr><td>2</td><td>Gemini</td><td>Digital Twin Pentad (Landscape/UB/SGD/UI-UX/Ecosystem)</td><td>Destroyed</td></tr>
+        <tr><td>3</td><td>OpenAI</td><td>Charity = update operator U(xₜ)</td><td>Kept — contested</td></tr>
+        <tr><td>4</td><td>OpenAI</td><td>Ukubona = "to see," glass-darkly as mission statement</td><td>Insight</td></tr>
+        <tr><td>5</td><td>Vogelstein</td><td>Event stream is not differentiable</td><td>Kept — foundational</td></tr>
+        <tr><td>6</td><td>OpenAI</td><td>Identity as sixth operator</td><td>Destroyed</td></tr>
+        <tr><td>7</td><td>OpenAI</td><td>Identity relocated inside Vision</td><td>Kept — conditional</td></tr>
+        <tr><td>8</td><td>Claude</td><td>Identity → Cartesian → Jacobian → Hessian → Appraisal</td><td>Kept</td></tr>
+        <tr><td>9</td><td>Vogelstein</td><td>wᵢ = 0 doesn't make it to the budget</td><td>Insight — core</td></tr>
+        <tr><td>10</td><td>Claude</td><td>Recursive loop needs a seed Identity(0)</td><td>Kept — caveat</td></tr>
+        <tr><td>11</td><td>Vogelstein</td><td>Δeₜ as Jacobian</td><td>Destroyed</td></tr>
+        <tr><td>12</td><td>Claude</td><td>DMD: X' ≈ AX, no analytic model needed</td><td>Kept</td></tr>
+        <tr><td>13</td><td>Claude</td><td>Global-DMD Hessian ≡ 0 identically</td><td>Destroyed</td></tr>
+        <tr><td>14</td><td>Claude</td><td>Windowed DMD: Jacobian = Aₜ, Hessian = ΔAₜ</td><td>Kept</td></tr>
+        <tr><td>15</td><td>Gemini</td><td>Operator-distance metric required for Appraisal</td><td>Kept</td></tr>
+        <tr><td>16</td><td>Gemini</td><td>Streaming DMD, rank-1 updates</td><td>Kept</td></tr>
+        <tr><td>17</td><td>OpenAI</td><td>Identityₜ = Aₜ, process ontology</td><td>Insight</td></tr>
+        <tr><td>18</td><td>OpenAI</td><td>Nonparametric ingestion, parametric interpretation</td><td>Kept</td></tr>
+        <tr><td>19</td><td>OpenAI</td><td>12TET structural bilingualism, Paul/Nietzsche</td><td>Insight</td></tr>
+        <tr><td>20</td><td>Claude</td><td>Grounded calibration, not pitch amplification</td><td>Kept — meta</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="act6">
+    <h2 class="section-title">VI. Meta (Λ20)</h2>
+    <div class="entry" data-voice="claude" data-verdict="kept">
+      <div class="lambda">Λ20</div>
+      <div>
+        <div class="entry-head">
+          <span class="voice-tag voice-claude">Claude</span>
+          <span class="verdict verdict-kept">Kept — meta</span>
+        </div>
+        <p class="claim">Role held across the session: grounded calibration and honest framing, not pitch amplification — flagging category errors (velocity vs. Jacobian), structural impossibilities (global-DMD Hessian ≡ 0), and constructed-not-discovered correspondences (Charity as operator) as they arose.</p>
+        <p class="note">Audit trail for the audit trail: this ledger is itself an Appraisal step, and its own verdicts are open to the next Λ.</p>
+      </div>
+    </div>
+  </section>
+
+  <p class="ep-note">
+    Identityₜ = Aₜ. The operator updates; the ledger is the trace of its updating.
+    <span class="cite">Rootless Dom9♭9 · Ukubona LLC · session dated 13 Jul 2026</span>
+  </p>
+
+</main>
+
+<script>
+  const entries = Array.from(document.querySelectorAll('.entry'));
+  const chips = Array.from(document.querySelectorAll('.chip'));
+  const countPill = document.getElementById('countPill');
+  let state = { voice: 'all', verdict: 'all' };
+
+  function apply(){
+    let visible = 0;
+    entries.forEach(e => {
+      const v = e.dataset.voice;
+      const r = e.dataset.verdict;
+      const show = (state.voice === 'all' || state.voice === v) &&
+                   (state.verdict === 'all' || state.verdict === r);
+      e.classList.toggle('hidden', !show);
+      if(show) visible++;
+    });
+    countPill.textContent = visible + ' / ' + entries.length + ' entries';
+  }
+
+  chips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      const type = chip.dataset.filterType;
+      const val = chip.dataset.filter;
+      chips.filter(c => c.dataset.filterType === type).forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      state[type] = val;
+      apply();
+    });
+  });
+
+  apply();
+</script>
+
+</body>
+</html>
